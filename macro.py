@@ -1,121 +1,36 @@
 import pywinauto
-import win32api
-import win32gui
 from pywinauto.application import Application
 import pywinauto.mouse as mouse
 import pywinauto.keyboard as keyboard
 import time
-from win32con import MK_LBUTTON, WM_LBUTTONDOWN, WM_LBUTTONUP, WM_ACTIVATE, WA_ACTIVE, WM_SETCURSOR
 
-
-import win32gui
-import win32ui
 from ctypes import windll
 from PIL import Image
 
 import cv2
 import numpy as np
+import PySimpleGUI as sg
+import win32gui
+import win32ui
+import _thread
+
 # while True:
 #     x, y = win32api.GetCursorPos()
 #     print(x, y)
 
-# app = Application(backend="win32").connect(title="LimbusCompany")
-
-# print(app.windows())
-
-# # dlg = app["LimbusCompany"]
-
-# # dlg.set_focus()
-
-# app.window(title="LimbusCompany").click(button='left', coords=(1288, 781))
-# time.sleep(1)
-# app.window(title="LimbusCompany").click(button='left', coords=(1146, 800))
-
-# mouse.click(coords=(1288, 781))
-# time.sleep(2)
-# mouse.click(coords=(1146, 800))
-
-# def click(x, y):
-#     hWnd = win32gui.FindWindow(None, "LimbusCompany")
-#     #lParam = win32api.MAKELONG(x, y)
-
-#     # hWnd1= win32gui.FindWindowEx(hWnd, None, None, None)
-#     lParam = win32gui.ScreenToClient(hWnd, (x,y))
-#     # #print(lParam)
-#     # print(lParam)
-#     lParam = win32api.MAKELONG(lParam[0], lParam[1])
-#     #lParam = win32api.MAKELONG(x, y)
-    
-#     #print(lParam)
-#     # hWnd1= win32gui.FindWindowEx(hWnd, None, None, None)
-#     #win32gui.SendMessage(hWnd, WM_ACTIVATE, WA_ACTIVE, 0)
-    
-#     win32gui.(hWnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam)
-#     time.sleep(0.5)
-#     win32gui.PostMessage(hWnd, WM_LBUTTONUP, 0, lParam)
-
-    
-# print("click")
-# click(1288, 781)
-# time.sleep(1)
-# click(1146, 800)
-# click(100, 100)
-# click(1288, 750)
-# click(1250,750)
-# click(1300, 750)
-# for i in range(100):
-#     for j in range(100):
-#         click(i*i, j*j)
-
-# for i in range(400,1929):
-#     for j in range(400,1056):
-#         click(i, j)
-#         time.sleep(0.25)
-# from pywinauto import Desktop
-
-# windows = Desktop(backend="uia").windows()
-# print([w.window_text() for w in windows])
-# print([w.rectangle() for w in windows])
 
 # import random
 
-# win_x = 1288
-# win_y = 781
-
-# go_x = 1146
-# go_y = 800
-
-# win2_x = 1349
-# win2_y = 777
-
-# go2_x = 1201
-# go2_y = 781
 
 # rand_x = int(random.randrange(0, 20, 1)) - 10
 # rand_y = int(random.randrange(0, 20, 1)) - 10
+
+
+
 def click(x, y):
     pywinauto.mouse.click(button="left", coords=(x, y))
-# test = 0
-# while test < 20:
-#     try:
-#         pywinauto.mouse.click(button='left', coords=(win_x + rand_x, win_y + rand_y))
-#         time.sleep(0.5)
-#         pywinauto.mouse.click(button="left", coords=(go_x + rand_x, go_y + rand_y))
-
-#         time.sleep(0.5)
-#         pywinauto.mouse.click(button='left', coords=(win2_x + rand_x, win2_y + rand_y))
-#         time.sleep(0.5)
-#         pywinauto.mouse.click(button="left", coords=(go2_x + rand_x, go2_y + rand_y))
-#         time.sleep(0.5)
-#         test += 1
-#     except KeyboardInterrupt:
-#         break
 
 
-# for _ in range(10):
-#     pywinauto.mouse.click(button='left', coords=(1288, 781))
-#     time.sleep(1)
-#     pywinauto.mouse.click(button='left', coords=(1146, 800)) 
 
 hwnd = win32gui.FindWindow(None, 'LimbusCompany')
 
@@ -126,10 +41,9 @@ left, top, right, bot = win32gui.GetWindowRect(hwnd)
 w = right - left
 h = bot - top
 
-
-
 template = cv2.imread('templates/winratebutton.png', 0)
 threshold = 0.8
+
 
 def macro_run():
 
@@ -212,12 +126,63 @@ def macro_run():
         # cv2.imshow('Detected', img_rgb)
         # cv2.waitKey(0)
 
+
+def loop_macro(macro_func):
+    global stop
+    sleep_time = 0
+    while not stop:
+        print("running")
+        if sleep_time >= 10:
+            sleep_time = 0
+            macro_func()
+        time.sleep(0.5)
+        sleep_time += 0.5
+        window.write_event_value("loop macro", "Running {macro}".format(macro="Limbus Company Auto Battle Macro"))
+
+    
+
+sg.theme('DarkAmber')   # Add a touch of color
+# All the stuff inside your window.
+layout = [  [sg.Text("Macros")],
+            [sg.Button('Auto Battle'), sg.Button('Stop')],
+            [sg.Button("Exit")], [sg.Text("", size=(0, 1), key='OUTPUT')]]
+
+# Create the Window
+window = sg.Window('Limbus Company Macro', layout, grab_anywhere=True,
+    resizable=True,keep_on_top=True)
+# Event Loop to process "events" and get the "values" of the inputs
+stop = False
 while True:
-    try:
-        macro_run()
-        time.sleep(10)
-    except KeyboardInterrupt:
+    event, values = window.read()
+    
+    if event == "Auto Battle":
+        stop = False
+        window.start_thread(lambda: loop_macro(macro_run), ('-THREAD-', '-THEAD ENDED-'))
+
+    if event == sg.WIN_CLOSED or event == "Exit": # if user closes window or clicks cancel
+        stop = False
+        window["OUTPUT"].update(value="Exiting")
+        time.sleep(1)
         break
+    if event == "Stop":
+        stop = True
+        window["OUTPUT"].update(value="Stopped")
+    if event == "loop macro" and not stop:
+
+        window["OUTPUT"].update(value=values["loop macro"])
+    
+
+
+
+window.close()
+
+
+# while True:
+#     try:
+#         macro_run()
+#         time.sleep(10)
+#     except KeyboardInterrupt:
+#         break
 
 
     
