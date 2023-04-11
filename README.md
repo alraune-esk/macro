@@ -19,7 +19,7 @@ Support to run indefinite macros.
 All the functionality of win32gui and other input device libraries that allow for options such as selection of window, focus, sending of input to minimised windows etc.
 
 
-<h3>To Run:</h3>
+To Run:
 Install requirements in requirements.txt
 Run macro.py in either a terminal or ide.
 
