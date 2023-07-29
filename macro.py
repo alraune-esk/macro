@@ -61,7 +61,11 @@ stop = False
 modes = ["ALWAYS FOREGROUND", "TAB BACK"]
 running_macros = {}
 STATE = "PAUSED"
+<<<<<<< HEAD
 #print(profiles.MACRO_REGISTRY)
+=======
+print(profiles.MACRO_REGISTRY)
+>>>>>>> 6ca85f789f642a90b6d38ae614468b727766dd75
 
 while True:
     event, values = window.read()
