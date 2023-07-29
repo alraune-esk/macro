@@ -14,6 +14,7 @@ import _thread
 from pywinauto.keyboard import send_keys, KeySequenceError
 from profiles import *
 from profiles import limbus_auto
+import profiles
 
 
 def no_double_click_time():
@@ -60,7 +61,7 @@ stop = False
 modes = ["ALWAYS FOREGROUND", "TAB BACK"]
 running_macros = {}
 STATE = "PAUSED"
-
+print(profiles.MACRO_REGISTRY)
 
 while True:
     event, values = window.read()
